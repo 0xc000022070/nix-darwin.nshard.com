@@ -49,31 +49,28 @@ const OptionsSearch: React.FC = () => {
 
     const lowerSearch = searchTerm.toLowerCase();
 
-    return Object.entries(options)
-      .filter(([key, value]) => {
-        // Search in option name/path
-        if (key.toLowerCase().includes(lowerSearch)) {
-          return true;
-        }
+    const keyMatches: Array<[string, Option]> = [];
+    const descriptionMatches: Array<[string, Option]> = [];
 
-        // Search in description
-        if (
-          value.description &&
-          String(value.description).toLowerCase().includes(lowerSearch)
-        ) {
-          return true;
-        }
+    Object.entries(options).forEach(([key, value]) => {
+      // Prioritize key matches
+      if (key.toLowerCase().includes(lowerSearch)) {
+        keyMatches.push([key, value]);
+      } else if (
+        value.description &&
+        String(value.description).toLowerCase().includes(lowerSearch)
+      ) {
+        descriptionMatches.push([key, value]);
+      } else if (
+        value.example &&
+        String(value.example).toLowerCase().includes(lowerSearch)
+      ) {
+        descriptionMatches.push([key, value]);
+      }
+    });
 
-        // Search in example
-        if (
-          value.example &&
-          String(value.example).toLowerCase().includes(lowerSearch)
-        ) {
-          return true;
-        }
-
-        return false;
-      });
+    // Return key matches first, then description matches
+    return [...keyMatches, ...descriptionMatches];
   }, [searchTerm, options]);
 
   if (loading) {
