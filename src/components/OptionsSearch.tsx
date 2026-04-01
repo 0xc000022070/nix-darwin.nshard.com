@@ -1,13 +1,39 @@
 import React, { useState, useEffect, useMemo } from "react";
 
+interface OptionValue {
+  _type?: string;
+  text?: string;
+  [key: string]: unknown;
+}
+
 interface Option {
   [key: string]: unknown;
   type?: string;
-  default?: string;
+  default?: OptionValue | string;
   description?: string;
-  example?: string;
+  example?: OptionValue | string;
   doc?: string;
 }
+
+// Helper to extract display value from nested objects
+const getDisplayValue = (value: unknown): string => {
+  if (value === null || value === undefined) {
+    return "";
+  }
+  if (typeof value === "string") {
+    return value;
+  }
+  if (typeof value === "object") {
+    const obj = value as Record<string, unknown>;
+    if (obj.text && typeof obj.text === "string") {
+      return obj.text;
+    }
+    if (obj._type === "literalExpression" && obj.text) {
+      return String(obj.text);
+    }
+  }
+  return JSON.stringify(value);
+};
 
 interface OptionsData {
   [key: string]: Option;
@@ -49,28 +75,39 @@ const OptionsSearch: React.FC = () => {
 
     const lowerSearch = searchTerm.toLowerCase();
 
+    const startsWith: Array<[string, Option]> = [];
     const keyMatches: Array<[string, Option]> = [];
     const descriptionMatches: Array<[string, Option]> = [];
 
     Object.entries(options).forEach(([key, value]) => {
-      // Prioritize key matches
-      if (key.toLowerCase().includes(lowerSearch)) {
+      const lowerKey = key.toLowerCase();
+
+      // Prioritize options that start with the search term
+      if (lowerKey.startsWith(lowerSearch)) {
+        startsWith.push([key, value]);
+      }
+      // Then options that contain the search term in key
+      else if (lowerKey.includes(lowerSearch)) {
         keyMatches.push([key, value]);
-      } else if (
+      }
+      // Then options that contain the search term in description
+      else if (
         value.description &&
         String(value.description).toLowerCase().includes(lowerSearch)
       ) {
         descriptionMatches.push([key, value]);
-      } else if (
+      }
+      // Finally options that contain the search term in example
+      else if (
         value.example &&
-        String(value.example).toLowerCase().includes(lowerSearch)
+        getDisplayValue(value.example).toLowerCase().includes(lowerSearch)
       ) {
         descriptionMatches.push([key, value]);
       }
     });
 
-    // Return key matches first, then description matches
-    return [...keyMatches, ...descriptionMatches];
+    // Return in order of priority: startsWith, then contains in key, then description
+    return [...startsWith, ...keyMatches, ...descriptionMatches];
   }, [searchTerm, options]);
 
   if (loading) {
@@ -147,7 +184,7 @@ const OptionsSearch: React.FC = () => {
                       Default:
                     </span>
                     <span className="ml-2 font-mono text-xs text-gray-600">
-                      {String(value.default)}
+                      {getDisplayValue(value.default)}
                     </span>
                   </div>
                 )}
@@ -171,7 +208,7 @@ const OptionsSearch: React.FC = () => {
                 <div className="mt-4">
                   <p className="text-xs font-semibold text-gray-900">Example:</p>
                   <pre className="mt-2 overflow-x-auto rounded bg-gray-100 p-3 font-mono text-xs text-gray-800">
-                    {String(value.example)}
+                    {getDisplayValue(value.example)}
                   </pre>
                 </div>
               )}
