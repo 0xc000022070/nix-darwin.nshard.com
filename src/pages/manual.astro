@@ -1,0 +1,121 @@
+---
+import MainLayout from '../layouts/main.astro';
+import OptionsSearch from '../components/OptionsSearch';
+---
+
+<MainLayout title="nix-darwin Manual - Configuration Options">
+  <div class="min-h-screen bg-white">
+    <!-- Header -->
+    <header class="border-b border-gray-200 bg-white px-6 py-8">
+      <div class="mx-auto max-w-6xl">
+        <div class="mb-6 flex items-center gap-4">
+          <img
+            src="https://raw.githubusercontent.com/nix-darwin/nix-darwin/main/nix-darwin-light.png"
+            alt="nix-darwin logo"
+            class="h-12 w-auto"
+            onerror="this.style.display='none'"
+          />
+          <h1 class="text-4xl font-bold text-black">nix-darwin Manual</h1>
+        </div>
+        <p class="max-w-3xl text-lg text-gray-600">
+          Configuration options reference for nix-darwin. Search to find options
+          by name, description, or examples. Similar to{' '}
+          <a
+            href="https://search.nixos.org/options"
+            class="font-semibold text-black underline hover:text-gray-700"
+          >
+            search.nixos.org/options
+          </a>
+          .
+        </p>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="px-6 py-8">
+      <div class="mx-auto max-w-6xl">
+        <OptionsSearch client:load />
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-gray-200 bg-gray-50 px-6 py-8">
+      <div class="mx-auto max-w-6xl">
+        <div class="grid gap-8 md:grid-cols-3">
+          <div>
+            <h3 class="font-bold text-black">nix-darwin</h3>
+            <p class="mt-2 text-sm text-gray-600">
+              A modular configuration system for macOS using Nix.
+            </p>
+          </div>
+          <div>
+            <h3 class="font-bold text-black">Resources</h3>
+            <ul class="mt-2 space-y-1">
+              <li>
+                <a
+                  href="https://github.com/nix-darwin/nix-darwin"
+                  class="text-sm text-gray-600 hover:text-black hover:underline"
+                >
+                  GitHub Repository
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://nix-darwin.github.io/nix-darwin/"
+                  class="text-sm text-gray-600 hover:text-black hover:underline"
+                >
+                  Official Documentation
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://nixos.org/"
+                  class="text-sm text-gray-600 hover:text-black hover:underline"
+                >
+                  NixOS
+                </a>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="font-bold text-black">Generate Options</h3>
+            <p class="mt-2 text-sm text-gray-600">
+              To regenerate options.json from latest nix-darwin:
+            </p>
+            <pre class="mt-2 overflow-x-auto rounded bg-gray-200 p-2 font-mono text-xs text-gray-800">
+bash scripts/generate-options.sh temp/nix-darwin
+            </pre>
+          </div>
+        </div>
+        <div class="mt-8 border-t border-gray-200 pt-8 text-center text-sm text-gray-500">
+          <p>
+            Options are fetched from nix-darwin. Last updated:{' '}
+            <span id="update-time">--</span>
+          </p>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // Show the current date/time
+    const now = new Date();
+    const timeElement = document.getElementById('update-time');
+    if (timeElement) {
+      timeElement.textContent = now.toLocaleDateString();
+    }
+  </script>
+
+  <style>
+    /* Nix-like styling */
+    :global(body) {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+        'Helvetica Neue', Arial, sans-serif;
+      color: #1f2937;
+    }
+
+    a {
+      color: inherit;
+    }
+  </style>
+</MainLayout>
