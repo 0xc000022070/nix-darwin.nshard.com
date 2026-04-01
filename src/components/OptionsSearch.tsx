@@ -44,7 +44,7 @@ const OptionsSearch: React.FC = () => {
   // Filter options based on search term
   const filteredOptions = useMemo(() => {
     if (!searchTerm.trim()) {
-      return Object.entries(options).slice(0, 20);
+      return Object.entries(options);
     }
 
     const lowerSearch = searchTerm.toLowerCase();
@@ -73,8 +73,7 @@ const OptionsSearch: React.FC = () => {
         }
 
         return false;
-      })
-      .slice(0, 50);
+      });
   }, [searchTerm, options]);
 
   if (loading) {
