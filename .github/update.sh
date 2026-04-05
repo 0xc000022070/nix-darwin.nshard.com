@@ -1,17 +1,48 @@
 #!/usr/bin/env bash
 
 # Script to generate options.json from nix-darwin
-# Usage: bash scripts/generate-options.sh [--source /path/to/flake]
+# Fetches the latest nix-darwin repository and generates options.json
+# Usage: bash scripts/generate-options.sh [--source /path/to/flake] [--repo https://github.com/nix-darwin/nix-darwin]
 
 set -euo pipefail
 
-SOURCE_DIR="${1:-.}"
-if [[ "$SOURCE_DIR" == "--source" ]]; then
-  SOURCE_DIR="${2:-.}"
-fi
+SOURCE_DIR=""
+REPO_URL="https://github.com/nix-darwin/nix-darwin"
+TEMP_DIR=""
 
-# Resolve to absolute path
-SOURCE_DIR="$(cd "$SOURCE_DIR" && pwd)"
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --source)
+      SOURCE_DIR="$2"
+      shift 2
+      ;;
+    --repo)
+      REPO_URL="$2"
+      shift 2
+      ;;
+    *)
+      SOURCE_DIR="$1"
+      shift
+      ;;
+  esac
+done
+
+# If no source dir specified, clone/fetch from nix-darwin
+if [[ -z "$SOURCE_DIR" ]]; then
+  TEMP_DIR="$(mktemp -d)"
+  trap "rm -rf '$TEMP_DIR'" EXIT
+
+  echo "Cloning nix-darwin from $REPO_URL..."
+  git clone --depth 1 "$REPO_URL" "$TEMP_DIR" || {
+    echo "Error: Failed to clone nix-darwin repository"
+    exit 1
+  }
+  SOURCE_DIR="$TEMP_DIR"
+else
+  # Resolve to absolute path
+  SOURCE_DIR="$(cd "$SOURCE_DIR" && pwd)"
+fi
 
 OUTPUT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/public/data"
 mkdir -p "$OUTPUT_DIR"
