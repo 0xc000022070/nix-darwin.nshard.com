@@ -6,13 +6,16 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro preview",
+    "preview": "npm run build && wrangler dev",
     "astro": "astro",
     "lint": "eslint .",
     "format": "prettier --write \"**/*.{ts,tsx,astro}\"",
-    "typecheck": "astro check"
+    "typecheck": "astro check",
+    "deploy": "npm run build && wrangler deploy",
+    "cf-typegen": "wrangler types"
   },
   "dependencies": {
+    "@astrojs/cloudflare": "12",
     "@astrojs/react": "^4.4.2",
     "@fontsource-variable/oxanium": "^5.2.8",
     "@tailwindcss/vite": "^4.2.1",
@@ -40,6 +43,7 @@
     "prettier-plugin-astro": "^0.14.1",
     "prettier-plugin-tailwindcss": "^0.7.2",
     "typescript": "~5.9.3",
-    "typescript-eslint": "^8.57.1"
+    "typescript-eslint": "^8.57.1",
+    "wrangler": "^4.92.0"
   }
 }
