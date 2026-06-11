@@ -8,6 +8,7 @@ set -euo pipefail
 
 SOURCE_DIR=""
 REPO_URL="https://github.com/nix-darwin/nix-darwin"
+NIXPKGS_INPUT="github:NixOS/nixpkgs/nixpkgs-unstable"
 TEMP_DIR=""
 
 # Parse arguments
@@ -61,15 +62,15 @@ if [[ ! -f "$SOURCE_DIR/flake.nix" ]]; then
   exit 1
 fi
 
-# Build the optionsJSON package
+SYSTEM="$(nix eval --impure --expr 'builtins.currentSystem')"
+
+# nix-darwin master tracks the next release and needs a matching nixpkgs input.
 echo "Building options JSON..."
-nix build "$SOURCE_DIR#docs.optionsJSON" --no-link -o /tmp/nix-darwin-options || {
+nix build "$SOURCE_DIR#packages.${SYSTEM}.optionsJSON" \
+  --override-input nixpkgs "$NIXPKGS_INPUT" \
+  --no-link -o /tmp/nix-darwin-options || {
   echo "Error: Failed to build options JSON"
-  echo "Trying alternative build path..."
-  nix build "$SOURCE_DIR#packages.$(nix eval --impure --expr 'builtins.currentSystem').optionsJSON" --no-link -o /tmp/nix-darwin-options || {
-    echo "Error: Could not build options JSON"
-    exit 1
-  }
+  exit 1
 }
 
 # Extract the options.json file
